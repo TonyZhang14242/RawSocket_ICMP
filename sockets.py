@@ -141,9 +141,12 @@ class ICMPSocket:
 		# tips: the 'checksum' in ICMP header needs to be calculated and updated
         # :rtype: bytes
         # :returns: an ICMP header+payload in bytes format
-        req_bytes = b'\x08\x00'+ id.to_bytes(len(id)) + sequence.to_bytes(len(sequence)) + payload
-        print(req_bytes)
-        return None
+        #print(id, sequence)
+        req_bytes = b'\x08\x00'+ id.to_bytes(2, byteorder='big',signed=False) + sequence.to_bytes(2, byteorder='big',signed=False) + payload
+        check_sum = self._checksum(req_bytes)
+        req_bytes= b'\x08\x00'+check_sum.to_bytes(2, byteorder='big',signed=False)+id.to_bytes(2, byteorder='big',signed=False) + sequence.to_bytes(2, byteorder='big',signed=False) + payload
+        #print(req_bytes)
+        return req_bytes
 
     def _parse_reply(self, packet, source, current_time):
         sequence = 0
