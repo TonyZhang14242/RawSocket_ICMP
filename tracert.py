@@ -43,6 +43,10 @@ def tracert(address, id=None):
         # Hint: use ICMPSocket.send() to send packet and use ICMPSocket.receive() to receive
         #
         ################################
+        
+        request = ICMPRequest(address, id, ttl=ttl)
+        sock.send(request)
+        reply = sock.receive()
 
         if reply:
             hop = Hop(
@@ -50,7 +54,6 @@ def tracert(address, id=None):
                 packets_sent=packets_sent,
                 rtts=rtts,
                 distance=ttl)
-
             hops.append(hop)
 
         ttl += 1

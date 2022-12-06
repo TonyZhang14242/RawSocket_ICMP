@@ -39,6 +39,19 @@ def ping(address,n=4, payload=None,id=None):
 	#
 	# Hint: use ICMPSocket.send() to send packet and use ICMPSocket.receive() to receive
 	################################
+	#suscesss
+	for number in range(n):
+		request = ICMPRequest(address, id, len(payload)*number, payload)
+		sock.send(request)
+		packets_sent += 1
+		send_time = time()
+		reply = None
+		while (time()-send_time) < PING_TIMEOUT:
+			if (not reply):
+				reply : ICMPReply = sock.receive(request)
+			else :
+				rtts.append((time()-send_time)*1000)
+				break
 	if reply:
 		return Host(
 			address=reply.source,
@@ -61,3 +74,4 @@ if __name__ == "__main__":
 		p = args.p.encode()
 	host = ping(target, n, p, i)
 	print(host.__str__())
+	

@@ -165,7 +165,7 @@ class ICMPSocket:
         type, code, checksum, id, sequence = struct.unpack("!bbHHH", packet[20:28])
         if type!=0:
             id, sequence = struct.unpack("!HH",packet[52:56])
-        print(type, code, checksum, id, sequence)
+        # print(type, code, checksum, id, sequence)
         return ICMPReply(
             source=source,
             id=id,
