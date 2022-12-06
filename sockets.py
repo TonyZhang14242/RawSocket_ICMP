@@ -1,4 +1,4 @@
-
+import struct
 from struct import pack, unpack
 import platform as plt
 from models import ICMPReply, ICMPRequest
@@ -162,6 +162,10 @@ class ICMPSocket:
         #
         # :rtype: ICMPReply
         # :returns: an ICMPReply parsed from packet
+        type, code, checksum, id, sequence = struct.unpack("!bbHHH", packet[20:28])
+        if type!=0:
+            id, sequence = struct.unpack("!HH",packet[52:56])
+        print(type, code, checksum, id, sequence)
         return ICMPReply(
             source=source,
             id=id,
