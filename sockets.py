@@ -1,6 +1,8 @@
 import struct
 from struct import pack, unpack
 import platform as plt
+
+import exceptions
 from models import ICMPReply, ICMPRequest
 from utils import *
 from time import time
@@ -162,8 +164,12 @@ class ICMPSocket:
         #
         # :rtype: ICMPReply
         # :returns: an ICMPReply parsed from packet
+        #print(self._checksum(packet[20:22]+packet[24:]))
+        #print(int.from_bytes(packet[22:24], 'big', signed=False))
+        if self._checksum(packet[20:22]+packet[24:]) != int.from_bytes(packet[22:24], 'big', signed=False):
+            raise exceptions.ICMPError
         type, code, checksum, id, sequence = struct.unpack("!bbHHH", packet[20:28])
-        if type!=0:
+        if type != 0:
             id, sequence = struct.unpack("!HH",packet[52:56])
         # print(type, code, checksum, id, sequence)
         return ICMPReply(

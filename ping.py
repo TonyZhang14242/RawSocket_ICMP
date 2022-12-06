@@ -1,4 +1,5 @@
 import sys
+import threading
 
 from models import *
 from time import sleep
@@ -41,7 +42,7 @@ def ping(address,n=4, payload=None,id=None):
 	################################
 	#suscesss
 	for number in range(n):
-		request = ICMPRequest(address, id, len(payload)*number, payload)
+		request = ICMPRequest(address, id, number, payload)
 		sock.send(request)
 		packets_sent += 1
 		send_time = time()
