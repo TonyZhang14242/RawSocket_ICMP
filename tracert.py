@@ -44,16 +44,31 @@ def tracert(address, id=None):
         #
         ################################
         
-        request = ICMPRequest(address, id, ttl=ttl)
-        sock.send(request)
-        reply = sock.receive()
+        for number in range(PING_COUNT):
+            request = ICMPRequest(address, id, ((ttl-1)*PING_COUNT)+number, ttl=ttl)
+            sock.send(request)
+            packets_sent += 1
+            send_time = time()
+            reply = None
+            while (time()-send_time) < PING_TIMEOUT:
+                if (not reply):
+                    try:
+                        reply : ICMPReply = sock.receive(request)
+                    except TimeoutExceeded:
+                        break
+                else :
+                    rtts.append((time()-send_time)*1000)
+                    break
 
         if reply:
+            if (reply.source == address):
+                host_reached = True
             hop = Hop(
                 address=reply.source,
                 packets_sent=packets_sent,
                 rtts=rtts,
                 distance=ttl)
+            # print(hop.__str__())
             hops.append(hop)
 
         ttl += 1
