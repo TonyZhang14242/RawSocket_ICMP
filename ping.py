@@ -20,7 +20,7 @@ def ping(address,n=4, payload=None,id=None):
 	reply = None
 	packets_sent = 0
 	rtts = []
-
+	reply_source = ''
 	###############################
 	# TODO:
 	# Create ICMPRequest and send through socket,
@@ -41,24 +41,25 @@ def ping(address,n=4, payload=None,id=None):
 	# Hint: use ICMPSocket.send() to send packet and use ICMPSocket.receive() to receive
 	################################
 	#suscesss
+	ok = False
 	for number in range(n):
 		request = ICMPRequest(address, id, number, payload)
 		sock.send(request)
 		packets_sent += 1
 		send_time = time()
 		reply = None
-		while (time()-send_time) < PING_TIMEOUT:
-			if (not reply):
-				try:
-					reply : ICMPReply = sock.receive(request)
-				except TimeoutExceeded:
-					break
-			else :
-				rtts.append((time()-send_time)*1000)
-				break
-	if reply:
+		try:
+			reply : ICMPReply = sock.receive(request)
+		except TimeoutExceeded:
+			pass
+		if (reply):
+			ok = True
+			reply_source = reply.source
+			rtts.append((reply._time - request._time)*1000)
+			pass
+	if ok:
 		return Host(
-			address=reply.source,
+			address=reply_source,
 			packets_sent=packets_sent,
 			rtts=rtts)
 	return None

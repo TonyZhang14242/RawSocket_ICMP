@@ -43,28 +43,28 @@ def tracert(address, id=None):
         # Hint: use ICMPSocket.send() to send packet and use ICMPSocket.receive() to receive
         #
         ################################
-        
+        ok = False
+        reply_source = ''
         for number in range(PING_COUNT):
             request = ICMPRequest(address, id, ((ttl-1)*PING_COUNT)+number, ttl=ttl)
             sock.send(request)
             packets_sent += 1
             send_time = time()
             reply = None
-            while (time()-send_time) < PING_TIMEOUT:
-                if (not reply):
-                    try:
-                        reply : ICMPReply = sock.receive(request)
-                    except TimeoutExceeded:
-                        break
-                else :
-                    rtts.append((time()-send_time)*1000)
-                    break
-
-        if reply:
-            if (reply.source == address):
+            try:
+                reply : ICMPReply = sock.receive(request)
+            except TimeoutExceeded:
+                pass
+            if (reply):
+                ok = True
+                rtts.append((reply._time - request._time)*1000)
+                reply_source = reply.source
+            
+        if ok:
+            if (reply_source == address):
                 host_reached = True
             hop = Hop(
-                address=reply.source,
+                address=reply_source,
                 packets_sent=packets_sent,
                 rtts=rtts,
                 distance=ttl)
