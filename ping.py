@@ -49,7 +49,10 @@ def ping(address,n=4, payload=None,id=None):
 		reply = None
 		while (time()-send_time) < PING_TIMEOUT:
 			if (not reply):
-				reply : ICMPReply = sock.receive(request)
+				try:
+					reply : ICMPReply = sock.receive(request)
+				except TimeoutExceeded:
+					break
 			else :
 				rtts.append((time()-send_time)*1000)
 				break
